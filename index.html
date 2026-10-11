@@ -1,26 +1,121 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Task Manager</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f4f7fc">
+  <title>TaskFlow — Personal Productivity</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>My Task Manager</h1>
-        <p>Organize your day, one task at a time.</p>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#" aria-label="TaskFlow home">
+        <span class="brand-mark">✓</span>
+        <span><strong>TaskFlow</strong><small>Plan · Focus · Achieve</small></span>
+      </a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <button class="nav-link active" data-view="all"><span>⌂</span> Dashboard</button>
+        <button class="nav-link" data-view="all"><span>☷</span> All tasks <b id="navAllCount">0</b></button>
+        <button class="nav-link" data-view="today"><span>▣</span> Today <b id="navTodayCount">0</b></button>
+        <button class="nav-link" data-view="upcoming"><span>◷</span> Upcoming</button>
+        <button class="nav-link" data-view="important"><span>☆</span> Important</button>
+        <button class="nav-link" data-view="completed"><span>✓</span> Completed</button>
+      </nav>
+      <div class="side-section">
+        <div class="side-heading">CATEGORIES <button id="addCategoryBtn" title="Add category">＋</button></div>
+        <div id="categoryList" class="category-list"></div>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="nav-link" id="settingsBtn"><span>⚙</span> Settings</button>
+        <div class="profile">
+          <div class="avatar">Y</div>
+          <div><strong>Your workspace</strong><small>Personal account</small></div>
+        </div>
+      </div>
+    </aside>
 
-        <form id="taskForm">
-            <input type="text" id="taskInput" placeholder="Enter a task..." required>
-            <button type="submit">Add Task</button>
-        </form>
+    <main class="main-content">
+      <header class="topbar">
+        <button id="menuBtn" class="icon-btn menu-btn" aria-label="Open navigation">☰</button>
+        <div class="welcome">
+          <p class="eyebrow" id="todayLabel">YOUR PRODUCTIVITY SPACE</p>
+          <h1>Make today count <span>✦</span></h1>
+          <p class="subheading">Small steps every day lead to big results.</p>
+        </div>
+        <div class="top-actions">
+          <label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Search your tasks..." aria-label="Search tasks"><kbd>⌘ K</kbd></label>
+          <button id="themeBtn" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">☼</button>
+        </div>
+      </header>
 
-        <ul id="taskList"></ul>
-        <p id="emptyMessage">No tasks yet. Add your first task!</p>
-    </div>
+      <section class="stats-grid" aria-label="Task summary">
+        <article class="stat-card"><div class="stat-icon blue">▤</div><div><p>Total tasks</p><strong id="totalStat">0</strong><small class="stat-note">Across all categories</small></div><span class="stat-decoration">↗</span></article>
+        <article class="stat-card"><div class="stat-icon green">✓</div><div><p>Completed</p><strong id="completedStat">0</strong><small class="stat-note" id="completionNote">0% completion</small></div><div class="mini-progress"><span id="completionBar"></span></div></article>
+        <article class="stat-card"><div class="stat-icon orange">◷</div><div><p>Pending</p><strong id="pendingStat">0</strong><small class="stat-note">One step at a time</small></div><span class="stat-decoration orange-text">↗</span></article>
+        <article class="stat-card"><div class="stat-icon purple">▦</div><div><p>Overdue</p><strong id="overdueStat">0</strong><small class="stat-note">Needs your attention</small></div><span class="stat-decoration purple-text">!</span></article>
+      </section>
 
-    <script src="script.js"></script>
+      <section class="workspace">
+        <div class="task-panel panel">
+          <div class="panel-header">
+            <div><h2 id="listTitle">Your tasks</h2><p id="listSubtitle">Stay organized and get things done.</p></div>
+            <button class="primary-btn" id="openTaskBtn"><span>＋</span> New task</button>
+          </div>
+
+          <form id="taskForm" class="task-composer">
+            <div class="composer-title"><span class="composer-plus">＋</span><input id="taskTitle" maxlength="120" placeholder="What needs to get done?" required></div>
+            <textarea id="taskDescription" rows="2" maxlength="500" placeholder="Add a description or notes (optional)"></textarea>
+            <div class="composer-controls">
+              <label class="field-chip"><span>◉</span><select id="taskCategory" aria-label="Category"><option>Work</option><option>Personal</option><option>Study</option><option>Health</option><option>Other</option></select></label>
+              <label class="field-chip"><span>⚑</span><select id="taskPriority" aria-label="Priority"><option value="medium">Medium priority</option><option value="high">High priority</option><option value="low">Low priority</option></select></label>
+              <label class="field-chip date-chip"><span>▣</span><input id="taskDueDate" type="date" aria-label="Due date"></label>
+              <button class="primary-btn add-submit" type="submit" id="submitTaskBtn">Add task <span>↗</span></button>
+              <button class="text-btn hidden" type="button" id="cancelEditBtn">Cancel edit</button>
+            </div>
+          </form>
+
+          <div class="list-toolbar">
+            <div class="filter-tabs" role="group" aria-label="Task filters">
+              <button class="filter-tab active" data-filter="all">All <span id="allTabCount">0</span></button>
+              <button class="filter-tab" data-filter="today">Today</button>
+              <button class="filter-tab" data-filter="upcoming">Upcoming</button>
+              <button class="filter-tab" data-filter="important">Important</button>
+              <button class="filter-tab" data-filter="completed">Completed</button>
+            </div>
+            <label class="sort-control">Sort <select id="sortSelect" aria-label="Sort tasks"><option value="created">Recently added</option><option value="due">Due date</option><option value="priority">Priority</option><option value="title">Task name</option></select></label>
+          </div>
+
+          <div id="taskList" class="task-list"></div>
+          <div id="emptyState" class="empty-state hidden"><div class="empty-art">✦</div><h3>Nothing on your list</h3><p>Add a task or try another filter to keep your momentum going.</p><button class="primary-btn" id="emptyAddBtn">＋ Create a task</button></div>
+          <footer class="list-footer"><span id="listCount">0 tasks</span><button id="clearCompletedBtn" class="text-btn">Clear completed</button></footer>
+        </div>
+
+        <aside class="right-column">
+          <section class="panel calendar-panel">
+            <div class="panel-header compact"><div><h2>Plan your month</h2><p id="calendarMonth">Calendar overview</p></div><div class="calendar-arrows"><button id="prevMonth" aria-label="Previous month">‹</button><button id="nextMonth" aria-label="Next month">›</button></div></div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+            <div class="calendar-legend"><span><i class="dot blue-dot"></i> Tasks due</span><span><i class="dot green-dot"></i> Today</span></div>
+          </section>
+          <section class="panel focus-panel">
+            <div class="focus-head"><div class="focus-icon">✧</div><div><h2>Focus for today</h2><p>Make room for what matters.</p></div></div>
+            <div class="focus-progress"><div class="focus-progress-label"><span>Daily progress</span><strong id="dailyProgressLabel">0%</strong></div><div class="progress-track"><span id="dailyProgressBar"></span></div></div>
+            <p class="focus-message" id="focusMessage">Start with one small win. You've got this.</p>
+          </section>
+          <section class="panel category-panel">
+            <div class="panel-header compact"><div><h2>By category</h2><p>Where your time goes</p></div><span class="tiny-icon">◫</span></div>
+            <div id="categorySummary" class="category-summary"></div>
+          </section>
+          <section class="quote-card"><div class="quote-mark">“</div><p>Progress is progress, no matter how small.</p><span>YOUR DAILY REMINDER</span></section>
+        </aside>
+      </section>
+      <footer class="app-footer"><span>✦ TaskFlow</span><span>Your tasks are saved in this browser on this device.</span></footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="script.js"></script>
 </body>
 </html>
